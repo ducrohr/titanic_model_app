@@ -1,200 +1,40 @@
+# Titanic survival model
 
-# Titanic Survival Prediction Web App
+This repository contains a scikit-learn logistic regression model for predicting Titanic survival and a small Flask demo. Deeploy deploys the **model artifact**, not the Flask web page.
 
-> A full-stack machine learning app that predicts whether a Titanic passenger survived, built using **Python**, **Flask**, **scikit-learn**, and **Bootstrap**.
+## Deeploy deployment
 
-## 🧠 Project Overview
+The repository follows Deeploy's [repository contract](https://docs.deeploy.ai/docs/repository/repository-requirements): `model/model.joblib` is the single model artifact in the `model` folder. It is trained with scikit-learn 1.5.1 and joblib 1.4.0, the versions listed for the current scikit-learn serving image in Deeploy's [supported versions](https://docs.deeploy.ai/docs/supported-versions). The optional `explainer` and `transformer` folders are not needed.
 
-This is a simple web application that:
-- Trains a logistic regression model using the Titanic dataset
-- Accepts user input (class, sex, age)
-- Predicts whether the passenger would have survived
-- Displays the result on a modern, styled web page
+1. Commit and push this repository, including `model/model.joblib`, to GitHub.
+2. In Deeploy, link the Git repository to a workspace. For a public repository, use its HTTPS URL; for a private repository, use its SSH URL and add Deeploy's generated read-only deploy key.
+3. Create a managed deployment from this repository and select the **scikit-learn** framework. Select a serving image compatible with scikit-learn 1.5.1 if the Deeploy instance offers a choice.
+4. Send inference requests using Deeploy's [V1 data format](https://docs.deeploy.ai/docs/api/inference-data-payload). For example:
 
-## 🗂️ Project Structure
+   ```json
+   {"instances": [[3, 1, 22]]}
+   ```
 
-```
-titanic_model_app/
-│
-├── app.py                 # Main web application using Flask
-├── train_model.py         # Trains and saves the ML model
-├── requirements.txt       # All required Python libraries
-├── README.md              # This file (full project guide)
-│
-├── model/
-│   ├── __init__.py        # Marks 'model' as a Python package
-│   ├── preprocess.py      # Function to clean & format user input
-│   └── model.pkl          # Saved logistic regression model (auto-generated)
-│
-└── templates/
-    └── index.html         # Web page (user interface)
-```
+   The three numbers are `pclass` (1–3), `sex` (male = 0, female = 1), and `age` in years, in that order. The prediction is `0` for did not survive or `1` for survived. A typical response has the form `{"predictions": [0]}` or `{"predictions": [1]}`.
 
-## ⚙️ Setup Instructions (Step-by-Step)
+The deployed endpoint address and authentication depend on the Deeploy workspace. The local `/predict` HTML form is a separate demo and is not the managed Deeploy inference endpoint.
 
-> These steps assume you're using **VS Code** and a Windows or Unix terminal.
+## Local setup
 
-### 🧱 1. Clone or Create the Project Folder
+Use Python 3.10–3.12. From the repository root:
 
-Create and open a folder called:
-
-```
-titanic_model_app
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe app.py
 ```
 
-Inside it, create:
-- 2 folders: `model` and `templates`
-- 4 files: `app.py`, `train_model.py`, `requirements.txt`, `README.md`
+Open `http://127.0.0.1:5000` to use the Flask demo. The checked-in model is already trained.
 
-Inside `model/`, create:
-- `preprocess.py`
-- `__init__.py` (leave it empty)
+To retrain it, run:
 
-Inside `templates/`, create:
-- `index.html`
-
-### 🐍 2. Set Up a Virtual Environment (Recommended)
-
-```bash
-python -m venv venv
+```powershell
+.\.venv\Scripts\python.exe train_model.py
 ```
 
-Activate it:
-
-- **Windows:**
-  ```bash
-  .\venv\Scripts\activate
-  ```
-- **macOS/Linux:**
-  ```bash
-  source venv/bin/activate
-  ```
-
-### 📦 3. Install Required Libraries
-
-```bash
-pip install flask pandas seaborn scikit-learn joblib
-```
-
-Then save them:
-
-```bash
-pip freeze > requirements.txt
-```
-
-Or manually paste into `requirements.txt`:
-
-```
-flask
-pandas
-seaborn
-scikit-learn
-joblib
-```
-
-### 🤖 4. Train the Model
-
-```bash
-python train_model.py
-```
-
-If successful, you’ll see no error, and `model/model.pkl` will be created.
-
-### 🧪 5. Test Your Input Preprocessing Script
-
-```bash
-python
->>> from model.preprocess import preprocess_input
->>> print(preprocess_input(2, 'female', 29))
->>> exit()
-```
-
-### 🌐 6. Start the Flask App
-
-```bash
-python app.py
-```
-
-Visit in browser: `http://127.0.0.1:5000`
-
-### 🖼️ 7. Use the Web Form
-
-Try:
-- Class: `3`
-- Sex: `female`
-- Age: `22`
-
-Then click **Predict**.
-
-## 🔍 What Each File Does
-
-| File/Folder | Purpose |
-|-------------|---------|
-| `train_model.py` | Trains and saves the logistic regression model |
-| `model/preprocess.py` | Translates user form input into a DataFrame |
-| `model/__init__.py` | Marks the model folder as a Python package |
-| `model/model.pkl` | Saved trained ML model |
-| `app.py` | Flask application logic |
-| `templates/index.html` | Front-end web form |
-| `requirements.txt` | Package list |
-| `README.md` | Documentation guide |
-
-## 🛠️ Common Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| `ImportError` on `preprocess_input` | Run from root folder and ensure `__init__.py` exists |
-| Blank web page | Ensure `index.html` is inside `templates/` and not empty |
-| Flask not installed | Run: `pip install flask` |
-| Changes not showing | Press Ctrl+Shift+R in your browser |
-| Python caching errors | Delete `__pycache__` folder |
-
-## 🚀 Next Steps
-
-- 🎨 Style the app using more Bootstrap or custom CSS
-- 📊 Add more features to the model
-- 🌍 Deploy online using platforms like Render, Replit, or Heroku
-
-## 👏 Credits
-
-- Titanic dataset: Seaborn
-- ML framework: scikit-learn
-- App styling: Bootstrap 5
-
----
-
-## 📸 Demo Screenshot (Optional)
-
-If you'd like to showcase what the app looks like:
-
-1. Open your app in a browser: `http://127.0.0.1:5000`
-2. Take a screenshot
-3. Save it in your project folder as `screenshot.png`
-4. Add this Markdown to display it:
-
-```markdown
-## 🖼️ Demo
-
-![App Screenshot](screenshot.png)
-
-
-Take note!
-git version adter downloading on cmd = git --version
-you must be in your project folder like i did on vscode terminal = cd C:\Users\ezekj\Downloads\titanic_model_app
-https://github.com/new = titanic_model_app
-git init
-git add .
-git config --global user.name "Ezekiel Joaquim" (first time)
-git config --global user.email "your_email@example.com" (first time)
-git commit -m "Initial commit: Titanic survival ML web app"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/titanic_model_app.git
-git push -u origin main
-
-
-After changes:
-git status
-git add ReadMe.md
-git commit -m "Added demo screenshot and license section to README"
-git push origin main
-
+Training uses the checked-in `data/titanic.csv` from the [Seaborn sample datasets](https://github.com/mwaskom/seaborn-data), so it needs no network access. After retraining, commit the updated `model/model.joblib` before creating a new Deeploy deployment.

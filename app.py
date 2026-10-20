@@ -1,12 +1,12 @@
 from flask import Flask, request, render_template
 import joblib
-from model.preprocess import preprocess_input
+from preprocess import preprocess_input
 
 # Start Flask app
 app = Flask(__name__)
 
 # Load the trained model
-model = joblib.load('model/model.pkl')
+model = joblib.load('model/model.joblib')
 
 # Home page that shows the form
 @app.route('/')
@@ -22,10 +22,10 @@ def predict():
     age = float(request.form['age'])
 
     # Preprocess the input
-    input_df = preprocess_input(pclass, sex, age)
+    input_values = preprocess_input(pclass, sex, age)
 
     # Make prediction
-    prediction = model.predict(input_df)[0]
+    prediction = model.predict(input_values)[0]
 
     # Return result to the user
     return render_template('index.html',
@@ -33,4 +33,4 @@ def predict():
 
 # Run the app locally
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
